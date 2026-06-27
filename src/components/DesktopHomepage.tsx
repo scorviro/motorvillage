@@ -521,18 +521,20 @@ export default function DesktopHomepage({ logoPaths, isVisible, preloadedImages,
     let lastDrawnFrame = 0;
 
     const pruneCache = (currentIdx: number) => {
-      // Only prune on mobile to save memory — keep max ~40 decoded frames
+      // Only prune on mobile to save memory — keep max ~260 decoded frames
       if (!isMobile) return;
       const keys = Object.keys(preloadedImages.current).map(Number);
-      if (keys.length > 40) {
+      if (keys.length > 270) {
         // Sort by distance from current position, delete furthest first
         const sorted = keys
           .map(k => ({ k, dist: Math.abs(k - currentIdx) }))
           .sort((a, b) => b.dist - a.dist);
-        for (let i = 0; i < sorted.length - 35; i++) {
+        for (let i = 0; i < sorted.length - 260; i++) {
           const { k } = sorted[i];
           // Don't prune skeleton keyframes (every 30th) — they're our safety net
           if (k % 30 === 1 || k === 1466) continue;
+          // Protect frames within the 200 forward and 50 reverse prefetch window
+          if (k >= currentIdx - 50 && k <= currentIdx + 200) continue;
           const img = preloadedImages.current[k];
           if (img) img.src = ""; // Help GC release decoded bitmap
           delete preloadedImages.current[k];
@@ -575,9 +577,22 @@ export default function DesktopHomepage({ logoPaths, isVisible, preloadedImages,
       if (isMobile) {
         pruneCache(targetFrame);
         const dir = targetFrame > currentFrame ? 1 : -1;
-        // Prefetch 15 frames ahead in the scroll direction
-        for (let i = 0; i < 15; i++) {
+        // Prefetch 200 frames ahead in the scroll direction
+        for (let i = 1; i <= 200; i++) {
           const f = targetFrame + i * dir;
+          if (f >= 1 && f <= 1466 && !preloadedImages.current[f]) {
+            const img = new Image();
+            const paddedNum = f <= 576 ? String(f).padStart(6, "0") : String(f);
+            img.src = `/motovillagedesktop/motocar_${paddedNum}.webp`;
+            preloadedImages.current[f] = img;
+            img.onload = () => {
+              if (Math.abs(currentFrameIndexRef.current - f) < 5) forceUpdateRef.current = true;
+            };
+          }
+        }
+        // Prefetch 50 frames behind in the reverse direction
+        for (let i = 1; i <= 50; i++) {
+          const f = targetFrame - i * dir;
           if (f >= 1 && f <= 1466 && !preloadedImages.current[f]) {
             const img = new Image();
             const paddedNum = f <= 576 ? String(f).padStart(6, "0") : String(f);
