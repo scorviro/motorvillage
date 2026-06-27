@@ -167,7 +167,9 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
             <div
               ref={contactCardRef}
               className="contact-heading-col"
-              style={{ willChange: "transform, opacity" }}
+              style={{
+                willChange: "transform, opacity",
+              }}
             >
               <div>
                 <div className="contact-connect-title">
@@ -192,7 +194,9 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
             <div
               ref={contactMapRef}
               className="contact-info-col"
-              style={{ willChange: "transform, opacity" }}
+              style={{
+                willChange: "transform, opacity",
+              }}
             >
               {/* Call & Email */}
               <div className="info-block">

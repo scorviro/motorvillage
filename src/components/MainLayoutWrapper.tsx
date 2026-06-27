@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import PremiumLoader from "./PremiumLoader";
-import Homepage from "./Homepage";
+import DesktopHomepage from "./DesktopHomepage";
+import useIsMobile from "../hooks/useIsMobile";
 
 interface PathData {
   d: string;
@@ -28,8 +29,10 @@ const generateInterleavedIndices = (mobileMode = false) => {
   };
 
   if (mobileMode) {
-    // Mobile Mode: ~293 frames total (every 5th frame) to prevent OOM
-    for (let i = 1; i <= 1466; i += 5) add(i);
+    // Mobile Mode: 50 evenly-spaced skeleton keyframes across the full range
+    // This guarantees getClosestLoadedImage always finds a frame within radius 15
+    for (let i = 1; i <= 1466; i += 30) add(i);
+    add(1466); // Always include the last frame
   } else {
     // Desktop Mode: full 1466 frames, interleaved progressively
     // Pass 1: Sparse (every 32nd frame)
@@ -55,6 +58,7 @@ const generateInterleavedIndices = (mobileMode = false) => {
 };
 
 export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps) {
+  const isMobile = useIsMobile(1024);
   const [isLoaderComplete, setIsLoaderComplete] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
 
@@ -63,13 +67,15 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
   const blobUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    if (isMobile === null) return;
+
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
     document.body.style.touchAction = "none";
 
-    // Mobile detection
-    const isMobileDevice = window.innerWidth <= 768;
-    let indices = generateInterleavedIndices(isMobileDevice);
+    // Mobile detection — use same threshold as useIsMobile hook
+    const isMobileDevice = isMobile;
+    let indices = generateInterleavedIndices(isMobileDevice ?? false);
     const limit = isMobileDevice ? 4 : 12; // Mobile: 4 concurrent, Desktop: 12 concurrent workers
     let indexCursor = 0;
     let loadedCount = 0;
@@ -111,7 +117,9 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
 
       const startTime = performance.now();
       try {
-        const { src: srcUrl } = await loadImageWithCache(paddedUrl);
+        // On mobile, skip Cache API + Blob pipeline to save memory.
+        // The browser's native HTTP cache handles caching automatically.
+        const srcUrl = isMobileDevice ? paddedUrl : (await loadImageWithCache(paddedUrl)).src;
         const endTime = performance.now();
 
         if (loadedCount < 30) {
@@ -157,7 +165,7 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
         }
 
         loadNext();
-      } catch (e) {
+      } catch {
         if (loadedCount < 30) {
           totalDownloadTime += 500; // Penalize failure with 500ms
         }
@@ -170,17 +178,18 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
       loadNext();
     }
 
+    const urls = blobUrlsRef.current;
     return () => {
       document.body.style.overflow = "unset";
       document.body.style.height = "auto";
       document.body.style.touchAction = "auto";
-      
+
       // Clean up object URLs to prevent memory leaks when component unmounts
-      blobUrlsRef.current.forEach((url) => {
+      urls.forEach((url) => {
         URL.revokeObjectURL(url);
       });
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     if (isLoaderComplete) {
@@ -190,6 +199,10 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
     }
   }, [isLoaderComplete]);
 
+  // Don't render anything until we know the device type (prevents hydration mismatch)
+  if (isMobile === null) return <div style={{ background: "#000", height: "100vh" }} />;
+
+  // ── DESKTOP & MOBILE SHARED LOGIC ──
   return (
     <main
       style={{
@@ -199,12 +212,13 @@ export default function MainLayoutWrapper({ logoPaths }: MainLayoutWrapperProps)
         background: "#000000",
       }}
     >
-      <Homepage
+      <DesktopHomepage
         logoPaths={logoPaths}
         isVisible={true}
         preloadedImages={preloadedImagesRef}
         isLoaderComplete={isLoaderComplete}
         loadProgressRef={loadProgressRef}
+        isMobile={isMobile}
       />
 
       {!isLoaderComplete && (

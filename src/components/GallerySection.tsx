@@ -14,11 +14,14 @@ const galleryData = [
   { id: 5, img: "/workshopstoreA.png", title: "Precision Diagnostic Terminal", desc: "Telemetry • Fault-Finding • Analysis" },
 ];
 
+export interface GallerySectionProps {
+}
+
 export interface GallerySectionHandle {
   update: (progress: number) => void;
 }
 
-const GallerySection = forwardRef<GallerySectionHandle, {}>((props, ref) => {
+const GallerySection = forwardRef<GallerySectionHandle, GallerySectionProps>((props, ref) => {
   // ── Refs ──────────────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -211,12 +214,10 @@ const GallerySection = forwardRef<GallerySectionHandle, {}>((props, ref) => {
           width: "100%",
           height: "100vh",
           zIndex: 5,
-          opacity: 0,
-          transform: "translateY(100vh)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          opacity: 0,
           pointerEvents: "none",
           visibility: "hidden",
           willChange: "transform, opacity",

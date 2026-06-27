@@ -7,11 +7,14 @@ import "../styles/workshop-store.css";
 // WorkshopStore — self-contained scroll-animated section
 // ─────────────────────────────────────────────────────────────
 
+export interface WorkshopStoreProps {
+}
+
 export interface WorkshopStoreHandle {
   update: (progress: number) => void;
 }
 
-const WorkshopStore = forwardRef<WorkshopStoreHandle, {}>((props, ref) => {
+const WorkshopStore = forwardRef<WorkshopStoreHandle, WorkshopStoreProps>((props, ref) => {
   // ── Refs for direct DOM style mutations (no React re-render on scroll) ──
   const containerRef = useRef<HTMLDivElement>(null);
   const storeDetailsRef = useRef<HTMLDivElement>(null);
@@ -300,6 +303,7 @@ const WorkshopStore = forwardRef<WorkshopStoreHandle, {}>((props, ref) => {
             zIndex: 3,
             pointerEvents: "none",
             willChange: "left",
+            display: "block",
           }}
         />
       </div>
