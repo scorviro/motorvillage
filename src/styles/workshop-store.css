@@ -1,0 +1,133 @@
+/* Workshop Store Section — scoped CSS */
+/* Depends on CSS variables: --color-orange, --color-white, --font-mono */
+
+/* ── Layout ── */
+.workshop-store-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.workshop-store-left {
+  width: 44%;
+  height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 110, 0, 0.3) transparent;
+}
+
+.workshop-store-left::-webkit-scrollbar {
+  width: 4px;
+}
+
+.workshop-store-left::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workshop-store-left::-webkit-scrollbar-thumb {
+  background: rgba(255, 110, 0, 0.3);
+  border-radius: 2px;
+}
+
+.workshop-store-left::-webkit-scrollbar-thumb:hover {
+  background: var(--color-orange);
+}
+
+.workshop-store-right {
+  width: 50%;
+  height: 80vh;
+}
+
+/* ── GPU Isolation ── */
+#workshop-store {
+  contain: layout style;
+  isolation: isolate;
+}
+
+/* ── Responsive: Tablet & Mobile ── */
+@media (max-width: 1024px) {
+  .workshop-store-container {
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 60px 16px 15px !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .workshop-store-left {
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    padding: 16px !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    background: rgba(8, 8, 10, 0.4) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 16px !important;
+  }
+
+  /* Make header elements more compact on mobile */
+  .workshop-store-left h2 {
+    font-size: 1.6rem !important;
+    margin: 2px 0 8px 0 !important;
+  }
+
+  .workshop-store-left p {
+    font-size: 0.82rem !important;
+    line-height: 1.4 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important; /* Limit description length on mobile */
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  /* Reduce gap in cards container */
+  .workshop-store-left > div:nth-child(2) {
+    margin: 5px 0 !important;
+    gap: 8px !important;
+  }
+
+  /* Make tool cards compact */
+  .store-tool-card {
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .store-tool-card h4 {
+    font-size: 0.9rem !important;
+  }
+
+  .store-tool-card p {
+    font-size: 0.75rem !important;
+  }
+
+  /* Shrink icon container in tool card */
+  .store-tool-card div[style*="rgba(255,90,0,0.1)"] {
+    padding: 6px !important;
+  }
+  
+  .store-tool-card svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* Make expanded detail text smaller */
+  .store-tool-card div[style*="maxHeight"] {
+    font-size: 0.75rem !important;
+    padding-left: 30px !important;
+  }
+
+  .workshop-store-right {
+    width: 100% !important;
+    height: 24vh !important;
+    min-height: 140px !important;
+    margin-bottom: 5px !important;
+  }
+}

@@ -1,0 +1,989 @@
+/* MOTOVILLAGE Premium Luxury CSS Design System */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Geist+Mono:wght@300;400;700&display=swap');
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+  --font-geist-sans: 'Outfit', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+
+  /* Brand Palette */
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-shadow: #050505;
+  --color-orange: #F26522;
+  --color-orange-glow: #FF6A1A;
+  --color-silver: #E5E5E5;
+  --color-white: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: none; /* Hide scrollbars for cinematic UI */
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html, body {
+  background: var(--bg-primary);
+  color: var(--color-silver);
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 1. Loader & Canvas Styles                                                  */
+/* -------------------------------------------------------------------------- */
+
+.engine-start-btn {
+  position: relative;
+  z-index: 10;
+}
+.engine-start-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(242, 101, 34, 0.2), transparent);
+  transition: all 0.6s ease;
+}
+.engine-start-btn:hover {
+  background: rgba(242, 101, 34, 0.08) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-orange-glow) !important;
+  box-shadow: 0 0 30px rgba(242, 101, 34, 0.35) !important;
+}
+.engine-start-btn:hover::before {
+  left: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. Shared Layout Elements (Ribbed Grid, Glows)                            */
+/* -------------------------------------------------------------------------- */
+
+.ribbed-grid-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background-size: 24px 100%;
+  background-image: 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, transparent 4px, rgba(0, 0, 0, 0.15) 4px, rgba(0, 0, 0, 0.15) 6px, transparent 6px);
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 2;
+}
+.orange-glow {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--color-orange-glow) 0%, transparent 70%);
+  top: -200px;
+  right: -100px;
+}
+.silver-glow {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-silver) 0%, transparent 70%);
+  bottom: -150px;
+  left: -100px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. Responsive Layout Containers                                           */
+/* -------------------------------------------------------------------------- */
+
+/* Desktop layout container - defaults to hidden, visible on desktops */
+.desktop-layout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background: var(--bg-primary);
+  padding: 40px;
+}
+
+.desktop-16-9-frame {
+  width: 100%;
+  max-width: 1380px;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  box-shadow: 
+    0 50px 100px rgba(0, 0, 0, 0.8),
+    0 0 80px rgba(242, 101, 34, 0.03);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/* 4. Desktop Layout Details                                                 */
+/* -------------------------------------------------------------------------- */
+
+.desktop-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+#nav-links {
+  display: flex;
+  list-style: none;
+  gap: 35px;
+}
+#nav-links a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(229, 229, 229, 0.6);
+  transition: color 0.3s ease;
+}
+#nav-links a:hover {
+  color: var(--color-orange);
+}
+
+.nav-cta {
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid var(--color-silver);
+  color: var(--color-silver);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.nav-cta:hover {
+  background: var(--color-orange);
+  border-color: var(--color-orange);
+  color: var(--color-white);
+  box-shadow: 0 0 15px rgba(242, 101, 34, 0.4);
+}
+
+.desktop-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 80px;
+  position: relative;
+  z-index: 5;
+  margin-top: 40px;
+}
+
+.hero-content {
+  max-width: 680px;
+}
+.hero-content .tagline {
+  font-family: var(--font-mono);
+  color: var(--color-orange);
+  font-size: 0.85rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+}
+
+#hero-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--color-white);
+  margin-bottom: 25px;
+}
+#hero-title .highlight {
+  color: var(--color-orange);
+}
+
+.hero-subtext {
+  color: rgba(229, 229, 229, 0.6);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  margin-bottom: 35px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 20px;
+}
+
+.btn-primary {
+  background: var(--color-orange);
+  color: var(--color-white);
+  padding: 14px 30px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background: var(--color-orange-glow);
+  box-shadow: 0 0 25px rgba(242, 101, 34, 0.55);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-white);
+  padding: 14px 30px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: var(--color-white) !important;
+  color: #000000 !important;
+  border-color: var(--color-white) !important;
+}
+
+/* Services section inside 16:9 view */
+.desktop-services {
+  padding: 0 80px 40px;
+  z-index: 5;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.section-header .accent-bar {
+  width: 35px;
+  height: 2px;
+  background: var(--color-orange);
+}
+.section-header h2 {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.service-card {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 24px;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.4s ease;
+}
+.service-card:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(242, 101, 34, 0.2);
+  transform: translateY(-4px);
+}
+.service-card .card-num {
+  font-family: var(--font-mono);
+  color: rgba(242, 101, 34, 0.4);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+.service-card h3 {
+  font-size: 1.1rem;
+  color: var(--color-white);
+  margin-bottom: 8px;
+}
+.service-card p {
+  font-size: 0.8rem;
+  color: rgba(229, 229, 229, 0.55);
+  line-height: 1.5;
+}
+.service-card .card-arrow {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: rgba(229, 229, 229, 0.3);
+  transition: color 0.3s ease;
+}
+.service-card:hover .card-arrow {
+  color: var(--color-orange);
+}
+
+.desktop-footer {
+  padding: 20px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(229, 229, 229, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
+  z-index: 5;
+}
+
+.desktop-footer .footer-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.desktop-footer .footer-links .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(229, 229, 229, 0.3);
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/* 6. Loader Custom Responsive Text Styling                                  */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .scene-text {
+    font-size: 0.75rem !important;
+    letter-spacing: 2.5px !important;
+    line-height: 1.6 !important;
+    bottom: 8% !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 7. Premium Navigation Bar & Mobile Drawer Overlay                          */
+/* -------------------------------------------------------------------------- */
+
+.desktop-navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 80px;
+  z-index: 100;
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s ease, box-shadow 0.4s ease;
+}
+
+.desktop-navbar-fixed.scrolled {
+  height: 60px;
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.desktop-navbar-fixed.nav-hidden {
+  transform: translateY(-100%);
+}
+
+.mobile-hamburger-btn {
+  display: none;
+}
+
+.mobile-nav-overlay {
+  display: none;
+}
+
+.navbar-logo {
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.02);
+}
+
+.navbar-links-center {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-link-item {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-decoration: none;
+  position: relative;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-link-item:hover {
+  color: var(--color-orange);
+}
+
+.nav-link-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--color-orange);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.nav-link-item:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.nav-link-item.active {
+  color: var(--color-orange);
+}
+
+.nav-link-item.active::after {
+  width: 100%;
+  left: 0;
+}
+
+.navbar-cta-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.nav-btn-cta {
+  padding: 11px 26px;
+  background: transparent;
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.nav-btn-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+  transition: all 0.6s ease;
+}
+
+.nav-btn-cta:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.nav-btn-cta:hover::before {
+  left: 100%;
+}
+
+.nav-btn-cta:active {
+  transform: translateY(1px);
+}
+
+
+
+/* Apple Premium Glassy Liquid Panel Style - iPhone 17 Pro Max style */
+.apple-liquid-glass {
+  position: relative;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible;
+}
+
+.apple-liquid-glass::before {
+  display: none !important;
+}
+
+/* Make sure container children are layered above the liquid effect */
+.apple-liquid-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes appleLiquidMove {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-4%, 4%) rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: translate(4%, -4%) rotate(360deg) scale(1);
+  }
+}
+
+/* Premium Services Board Glassmorphism */
+.services-details-glass {
+  background: rgba(10, 10, 10, 0.65) !important;
+  backdrop-filter: blur(60px) !important;
+  -webkit-backdrop-filter: blur(60px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65) !important;
+  border-radius: 24px !important;
+}
+
+.service-grid-card {
+  background: rgba(10, 10, 10, 0.45) !important;
+  backdrop-filter: blur(35px) !important;
+  -webkit-backdrop-filter: blur(35px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 16px !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.service-grid-card.selected {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2) !important;
+}
+
+.service-grid-card:hover {
+  background: rgba(255, 90, 0, 0.08) !important;
+  border-color: rgba(255, 90, 0, 0.3) !important;
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 12px 30px rgba(255, 90, 0, 0.15) !important;
+}
+
+.service-grid-card:hover .service-card-icon-container {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.scroll-container-details::-webkit-scrollbar {
+  width: 4px;
+  display: block;
+}
+
+.scroll-container-details::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.scroll-container-details::-webkit-scrollbar-thumb {
+  background: rgba(255, 90, 0, 0.3);
+  border-radius: 10px;
+}
+
+@keyframes bounceRight {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   Responsive Overrides for Desktop Layout running on Mobile
+   ========================================== */
+
+@media (max-width: 1024px) {
+  /* Make fixed desktop navbar responsive on mobile */
+  .desktop-navbar-fixed {
+    padding: 0 20px !important;
+    height: 60px !important;
+    justify-content: space-between !important;
+  }
+
+  .desktop-navbar-fixed .navbar-cta-right {
+    display: none !important; /* Hide CTA button to save space */
+  }
+
+  .desktop-navbar-fixed nav.navbar-links-center {
+    display: none !important;
+  }
+
+  /* Hamburger button toggle for mobile navigation drawer */
+  .mobile-hamburger-btn {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 101; /* Stay above navbar and overlay drawer */
+    outline: none;
+  }
+
+  .mobile-hamburger-btn span {
+    width: 100%;
+    height: 2px;
+    background-color: #1a1a1a; /* Dark gray match for white navbar background */
+    border-radius: 2px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, background-color 0.4s ease;
+  }
+
+  .mobile-hamburger-btn.open span {
+    background-color: #ffffff !important; /* Switch to white when overlay is active */
+  }
+
+  .mobile-hamburger-btn.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-hamburger-btn.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .mobile-hamburger-btn.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Slide down mobile navigation overlay */
+  .mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    z-index: 99;
+    display: flex !important; /* Force display flex on mobile */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    transform: translateY(-100%);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-nav-overlay.open {
+    transform: translateY(0);
+  }
+
+  .mobile-nav-link {
+    font-family: var(--font-outfit);
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link.active {
+    color: var(--color-orange);
+    transform: scale(1.05);
+  }
+
+  .mobile-nav-link.disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .mobile-nav-btn-cta {
+    margin-top: 30px;
+    background: var(--color-orange);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 36px;
+    font-family: var(--font-outfit);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(255, 90, 0, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-nav-btn-cta:hover {
+    background: var(--color-orange-glow);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(255, 90, 0, 0.4);
+  }
+
+  .desktop-layout-container {
+    padding: 0 !important;
+    display: block !important;
+  }
+  
+  .desktop-16-9-frame {
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    box-shadow: none !important;
+  }
+
+  /* Allow overlay containers to flex correctly on smaller screens */
+  .desktop-content-overlay {
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    justify-content: center !important;
+  }
+
+  /* Styling for absolute section panels to fit nicely on mobile screens */
+  .homepage-section-hero,
+  .homepage-section-about,
+  .homepage-section-story,
+  .homepage-section-vision,
+  .homepage-section-workshop {
+    left: 5% !important;
+    right: 5% !important;
+    width: 90% !important;
+    max-width: 100% !important;
+    padding: 30px 20px !important;
+    text-align: center !important;
+    border-radius: 16px !important;
+  }
+
+  /* Center the inner headings and statistics grid */
+  .homepage-section-hero h1,
+  .homepage-section-about h1,
+  .homepage-section-story h1,
+  .homepage-section-vision h1,
+  .homepage-section-workshop h1 {
+    font-size: 2rem !important;
+    text-align: center !important;
+  }
+  
+  .homepage-section-hero p,
+  .homepage-section-about p,
+  .homepage-section-story p,
+  .homepage-section-vision p,
+  .homepage-section-workshop p {
+    font-size: 0.85rem !important;
+    text-align: center !important;
+  }
+
+  .homepage-section-hero div,
+  .homepage-section-about div,
+  .homepage-section-story div,
+  .homepage-section-vision div,
+  .homepage-section-workshop div {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Services Section responsive stacking layout */
+  #services {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 80px 20px 20px !important;
+    gap: 20px !important;
+    overflow-y: auto !important;
+  }
+
+  /* The Grid interactive board should take full width on mobile */
+  .homepage-services-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    margin-top: 20px !important;
+  }
+
+  /* Make details panel look like a gorgeous bottom sheet on mobile */
+  .homepage-services-details {
+    display: none !important; /* hidden by default on mobile when no service is selected */
+  }
+
+  .homepage-services-details.active {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 80vh !important;
+    z-index: 1000 !important;
+    border-top: 2px solid var(--color-orange) !important;
+    border-top-left-radius: 28px !important;
+    border-top-right-radius: 28px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 30px 20px 20px !important;
+    transform: translateY(0) !important;
+    animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    background: #0d0d0d !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .homepage-services-details.active .mobile-close-btn {
+    display: flex !important;
+  }
+
+  .homepage-services-details.active .scroll-container-details {
+    max-height: calc(80vh - 180px) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .homepage-section-hero h1,
+  .homepage-section-about h1,
+  .homepage-section-story h1,
+  .homepage-section-vision h1,
+  .homepage-section-workshop h1 {
+    font-size: 1.6rem !important;
+  }
+
+  .homepage-services-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive workshop popup modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease forwards;
+  pointer-events: auto;
+}
+
+.modal-content-wrapper {
+  background-color: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 45px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-grid-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+}
+
+.modal-subtitle-text {
+  font-size: 2.4rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  margin-bottom: 35px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .modal-content-wrapper {
+    padding: 30px 20px !important;
+    width: 92% !important;
+    max-height: 90vh !important;
+    border-radius: 12px !important;
+  }
+  
+  .modal-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+  
+  .modal-subtitle-text {
+    font-size: 1.6rem !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 12px !important;
+  }
+}
+
+
+
