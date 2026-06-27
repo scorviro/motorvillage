@@ -538,14 +538,16 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
       targetFrame = getFrameForProgress(progress);
     };
 
+    const isMobile = window.innerWidth <= 768;
+
     // 2. Initialize Lenis (exactly like classic SmoothScroll.tsx)
     const lenis = new Lenis({
-      lerp: 0.07, // Decreased to 0.07 for even smoother scrolling response
+      lerp: isMobile ? 0.12 : 0.07, // Mobile: 0.12 (responsive touch), Laptop: 0.07 (smooth scrolling)
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
       wheelMultiplier: 0.9,
-      touchMultiplier: 1.2,
+      touchMultiplier: isMobile ? 1.8 : 1.2, // Mobile: 1.8 (more scroll per swipe), Laptop: 1.2
       autoRaf: false,
       syncTouch: false,
     });
@@ -574,8 +576,9 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
           forceUpdateRef.current = false;
           lastDrawnFrame = -1; // Force canvas redraw to restore image after React render
         }
-        currentFrame += frameDiff * 0.10; // Increased to 12% for responsive, smooth transitions
-        currentProgress += progDiff * 0.10;
+        const frameLerpFactor = isMobile ? 0.12 : 0.10; // Mobile: 0.12 for 24fps sparse frame smoothing, Laptop: 0.10
+        currentFrame += frameDiff * frameLerpFactor;
+        currentProgress += progDiff * frameLerpFactor;
 
         const frameIdx = Math.max(1, Math.min(1466, Math.round(currentFrame)));
         const progress = currentProgress;
