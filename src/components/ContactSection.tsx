@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { createPortal } from "react-dom";
 import "../styles/contact-section.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -18,44 +19,189 @@ interface ContactSectionProps {
 
 export interface ContactSectionHandle {
   update: (progress: number) => void;
+  openModal: () => void;
 }
 
 const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ logoPaths }, ref) => {
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const containerRef    = useRef<HTMLDivElement>(null);
-  const contactCardRef  = useRef<HTMLDivElement>(null);
-  const contactMapRef   = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contactCardRef = useRef<HTMLDivElement>(null);
+  const contactMapRef = useRef<HTMLDivElement>(null);
 
   // ── State ─────────────────────────────────────────────────────────────────
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  const [isMobile, setIsMobile]               = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const [formValues, setFormValues] = useState({
+    name: "",
+    phone: "",
+    car: "",
+    service: "",
+    date: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // ── Service Names Mapping ──
+  const SERVICE_NAMES: Record<string, string> = {
+    general: "General Periodic Maintenance",
+    tuning: "ECU Calibration & Tuning",
+    detail: "PPF & Detailing Showroom",
+    diagnostic: "Advanced Computer Diagnostics",
+    mechanical: "Mechanical & Engine Repair",
+    ceramic: "Ceramic Coating & Paint Correction",
+    suspension: "Brake & Suspension Upgrade",
+    ac: "AC Service & Gas Recharge",
+    custom: "Custom Modification & Wrapping",
+  };
+
+  const getTodayDateString = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+    }
+    return dateStr;
+  };
+
+  const openModal = () => {
+    setFormValues({
+      name: "",
+      phone: "",
+      car: "",
+      service: "",
+      date: "",
+    });
+    setErrors({});
+    setIsBookModalOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    const fieldName = id.replace("book-", ""); // book-name -> name
+    setFormValues((prev) => ({ ...prev, [fieldName]: value }));
+
+    // Clear error for this field dynamically
+    if (errors[fieldName]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[fieldName];
+        return next;
+      });
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const newErrors: Record<string, string> = {};
+
+    // Validate Name
+    const nameVal = formValues.name.trim();
+    if (!nameVal) {
+      newErrors.name = "Name is required";
+    } else if (nameVal.length < 3) {
+      newErrors.name = "Name must be at least 3 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(nameVal)) {
+      newErrors.name = "Name should only contain letters and spaces";
+    }
+
+    // Validate Phone (10 digits starting with 6-9)
+    const phoneVal = formValues.phone.trim();
+    if (!phoneVal) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[6-9]\d{9}$/.test(phoneVal)) {
+      newErrors.phone = "Enter a valid 10-digit number starting with 6-9";
+    }
+
+    // Validate Car Make & Model
+    const carVal = formValues.car.trim();
+    if (!carVal) {
+      newErrors.car = "Car details are required";
+    } else if (carVal.length < 3) {
+      newErrors.car = "Car details must be at least 3 characters";
+    }
+
+    // Validate Service Selection
+    if (!formValues.service) {
+      newErrors.service = "Please select a service";
+    }
+
+    // Validate Date
+    if (!formValues.date) {
+      newErrors.date = "Preferred date is required";
+    } else {
+      const todayStr = getTodayDateString();
+      if (formValues.date < todayStr) {
+        newErrors.date = "Preferred date cannot be in the past";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const serviceLabel = SERVICE_NAMES[formValues.service] || formValues.service;
+    const formattedDate = formatDate(formValues.date);
+
+    const message = `🚗 *New Service Booking - Motovillage* 🚗
+
+👤 *Customer Details:*
+• *Name:* ${nameVal}
+• *Phone:* ${phoneVal}
+
+🚘 *Vehicle Details:*
+• *Car:* ${carVal}
+
+🛠️ *Service Details:*
+• *Service Type:* ${serviceLabel}
+• *Preferred Date:* ${formattedDate}`;
+
+    const whatsappNumber = "919904655559";
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, "_blank");
+    setIsBookModalOpen(false);
+  };
 
   // ── Mobile detection ──────────────────────────────────────────────────────
   useEffect(() => {
+    setMounted(true);
     const check = () => setIsMobile(window.innerWidth <= 1024);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // ── Expose update method imperatively to avoid React re-renders ──
+  // ── Expose methods imperatively to avoid React re-renders ──
   useImperativeHandle(ref, () => ({
+    openModal,
     update: (progress: number) => {
       let slideOffset = 100;
-      let slideUnit   = "vh";
-      let contactOp   = 0;
+      let slideUnit = "vh";
+      let contactOp = 0;
 
       // Contact section starts active at progress > 0.886
       if (isMobile) {
         if (progress > 0.61905) {
           if (progress <= 0.64286) {
             slideOffset = 100;
-            slideUnit   = "vh";
-            contactOp   = 0;
+            slideUnit = "vh";
+            contactOp = 0;
           } else if (progress <= 0.91) {
             const t = (progress - 0.64286) / (0.91 - 0.64286);
             slideOffset = 300 - t * 300;
-            slideUnit   = "vh";
+            slideUnit = "vh";
             contactOp = slideOffset < 0 ? 1 : Math.max(0, 1 - slideOffset / 100);
           } else {
             const t2 = (progress - 0.91) / 0.09;
@@ -64,30 +210,30 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
               ? (containerRef.current.scrollHeight - (typeof window !== "undefined" ? window.innerHeight : 800))
               : 400;
             slideOffset = -Math.max(0, extraHeight) * easeT2;
-            slideUnit   = "px";
-            contactOp   = 1;
+            slideUnit = "px";
+            contactOp = 1;
           }
         } else {
           slideOffset = 100;
-          slideUnit   = "vh";
-          contactOp   = 0;
+          slideUnit = "vh";
+          contactOp = 0;
         }
       } else {
         if (progress > 0.886) {
           if (progress <= 0.91) {
             // Slide in range (0.886 to 0.91)
-            const t      = (progress - 0.886) / 0.024;
-            const easeT  = t * t * (3 - 2 * t); // Smoothstep easing
-            slideOffset  = 100 - 100 * easeT;
-            slideUnit    = "vh";
-            contactOp    = easeT;
+            const t = (progress - 0.886) / 0.024;
+            const easeT = t * t * (3 - 2 * t); // Smoothstep easing
+            slideOffset = 100 - 100 * easeT;
+            slideUnit = "vh";
+            contactOp = easeT;
           } else {
             // Visible + footer reveal scroll range (0.91 to 1.00)
-            const t      = Math.min(1, (progress - 0.91) / 0.09);
-            const easeT  = t * t * (3 - 2 * t); // Smoothstep easing
-            slideOffset  = isMobile ? 0 : -270 * easeT;
-            slideUnit    = isMobile ? "vh" : "px";
-            contactOp    = 1;
+            const t = Math.min(1, (progress - 0.91) / 0.09);
+            const easeT = t * t * (3 - 2 * t); // Smoothstep easing
+            slideOffset = isMobile ? 0 : -270 * easeT;
+            slideUnit = isMobile ? "vh" : "px";
+            contactOp = 1;
           }
         } else {
           slideOffset = 100;
@@ -97,10 +243,10 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
       }
 
       if (containerRef.current) {
-        containerRef.current.style.transform    = `translateY(${slideOffset}${slideUnit})`;
-        containerRef.current.style.opacity      = contactOp > 0.01 ? "1" : "0";
+        containerRef.current.style.transform = `translateY(${slideOffset}${slideUnit})`;
+        containerRef.current.style.opacity = contactOp > 0.01 ? "1" : "0";
         containerRef.current.style.pointerEvents = contactOp > 0.95 ? "auto" : "none";
-        containerRef.current.style.visibility    = contactOp > 0.01 ? "visible" : "hidden";
+        containerRef.current.style.visibility = contactOp > 0.01 ? "visible" : "hidden";
       }
 
       // 3D tilt calculations based on entry progress
@@ -109,11 +255,11 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
 
       if (contactCardRef.current) {
         contactCardRef.current.style.transform = `translateX(${-slideDist}px) rotateY(${tiltAngle}deg)`;
-        contactCardRef.current.style.opacity   = `${contactOp}`;
+        contactCardRef.current.style.opacity = `${contactOp}`;
       }
       if (contactMapRef.current) {
-        contactMapRef.current.style.transform  = `translateX(${slideDist}px) rotateY(${-tiltAngle}deg)`;
-        contactMapRef.current.style.opacity    = `${contactOp}`;
+        contactMapRef.current.style.transform = `translateX(${slideDist}px) rotateY(${-tiltAngle}deg)`;
+        contactMapRef.current.style.opacity = `${contactOp}`;
       }
     }
   }));
@@ -207,9 +353,8 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
                 </div>
                 <h3 className="info-block-label">Call & Email</h3>
                 <p className="info-block-text">
-                  Mob: <a href="tel:+919904211000" className="info-link">+91 99042 11000</a><br />
-                  Work: <a href="tel:+912812990420" className="info-link">+91 281 2990420</a><br />
-                  Email: <a href="mailto:info@motovillage.in" className="info-link">info@motovillage.in</a>
+                  Call: <a href="tel:+919904655559" className="info-link">+91 99046 55559</a><br />
+                  Email: <a href="mailto:info.motovillagecarworkshop@gmail.com" className="info-link">info.motovillagecarworkshop@gmail.com</a>
                 </p>
               </div>
 
@@ -252,7 +397,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
               <div className="info-block-cta-card">
                 <h3 className="cta-card-title">Book a service</h3>
                 <p className="cta-card-desc">Experience premium vehicle care</p>
-                <button className="contact-cta-btn" onClick={() => setIsBookModalOpen(true)}>
+                <button className="contact-cta-btn" onClick={openModal}>
                   Book Service
                 </button>
               </div>
@@ -332,7 +477,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
                   </svg>
                 </div>
                 <span className="footer-info-text">
-                  <a href="tel:+919904211000">+91 99042 11000</a> &nbsp;|&nbsp; <a href="tel:+912812990420">+91 281 2990420</a>
+                  <a href="tel:+919904655559">+91 99046 55559</a>
                 </span>
               </div>
               <div className="footer-info-item">
@@ -354,7 +499,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
                   </svg>
                 </div>
                 <span className="footer-info-text">
-                  <a href="mailto:info@motovillage.in">info@motovillage.in</a>
+                  <a href="mailto:info.motovillagecarworkshop@gmail.com">info.motovillagecarworkshop@gmail.com</a>
                 </span>
               </div>
               <div className="footer-info-item">
@@ -395,10 +540,11 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
       </div>
 
       {/* ── Book Service Popup Modal ── */}
-      {isBookModalOpen && (
+      {isBookModalOpen && mounted && typeof document !== "undefined" && createPortal(
         <div
           className="book-modal-overlay"
           onClick={() => setIsBookModalOpen(false)}
+          data-lenis-prevent
         >
           <div
             className="book-modal-content"
@@ -425,60 +571,81 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({ 
 
             <form
               className="book-modal-form"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const form = e.currentTarget;
-                const data = {
-                  name:    (form.elements.namedItem("book-name")    as HTMLInputElement).value,
-                  phone:   (form.elements.namedItem("book-phone")   as HTMLInputElement).value,
-                  car:     (form.elements.namedItem("book-car")     as HTMLInputElement).value,
-                  service: (form.elements.namedItem("book-service") as HTMLSelectElement).value,
-                  date:    (form.elements.namedItem("book-date")    as HTMLInputElement).value,
-                };
-                
-                // Show alert/thank you
-                alert("Thank you! Your appointment request has been submitted. Our team will contact you shortly.");
-                setIsBookModalOpen(false);
-              }}
+              noValidate
+              onSubmit={handleSubmit}
             >
-              <div className="form-group">
+              <div className={`form-group ${errors.name ? "has-error" : ""}`}>
                 <label htmlFor="book-name">Name</label>
-                <input type="text" id="book-name" required placeholder="Your full name" />
+                <input
+                  type="text"
+                  id="book-name"
+                  value={formValues.name}
+                  onChange={handleInputChange}
+                  placeholder="Your full name"
+                />
+                {errors.name && <span className="error-text">{errors.name}</span>}
               </div>
-              <div className="form-group">
+              <div className={`form-group ${errors.phone ? "has-error" : ""}`}>
                 <label htmlFor="book-phone">Phone Number</label>
-                <input type="tel" id="book-phone" required placeholder="Your mobile number" />
+                <input
+                  type="tel"
+                  id="book-phone"
+                  value={formValues.phone}
+                  onChange={handleInputChange}
+                  placeholder="Your mobile number"
+                />
+                {errors.phone && <span className="error-text">{errors.phone}</span>}
               </div>
-              <div className="form-group">
+              <div className={`form-group ${errors.car ? "has-error" : ""}`}>
                 <label htmlFor="book-car">Car Make & Model</label>
-                <input type="text" id="book-car" required placeholder="e.g. Audi A4, Fortuner, Creta" />
+                <input
+                  type="text"
+                  id="book-car"
+                  value={formValues.car}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Audi A4, Fortuner, Creta"
+                />
+                {errors.car && <span className="error-text">{errors.car}</span>}
               </div>
-              <div className="form-group">
+              <div className={`form-group ${errors.service ? "has-error" : ""}`}>
                 <label htmlFor="book-service">Select Service</label>
-                <select id="book-service" required>
+                <select
+                  id="book-service"
+                  value={formValues.service}
+                  onChange={handleInputChange}
+                >
                   <option value="">Choose a service...</option>
                   <option value="general">General Periodic Maintenance</option>
                   <option value="tuning">ECU Calibration & Tuning</option>
                   <option value="detail">PPF & Detailing Showroom</option>
                   <option value="diagnostic">Advanced Computer Diagnostics</option>
                   <option value="mechanical">Mechanical & Engine Repair</option>
+                  <option value="ceramic">Ceramic Coating & Paint Correction</option>
+                  <option value="suspension">Brake & Suspension Upgrade</option>
+                  <option value="ac">AC Service & Gas Recharge</option>
+                  <option value="custom">Custom Modification & Wrapping</option>
                 </select>
+                {errors.service && <span className="error-text">{errors.service}</span>}
               </div>
-              <div className="form-group">
+              <div className={`form-group ${errors.date ? "has-error" : ""}`}>
                 <label htmlFor="book-date">Preferred Date</label>
                 <input
                   type="date"
                   id="book-date"
-                  required
+                  value={formValues.date}
+                  onChange={handleInputChange}
+                  min={getTodayDateString()}
                   style={{ colorScheme: "dark" }}
                 />
+                {errors.date && <span className="error-text">{errors.date}</span>}
               </div>
               <button type="submit" className="btn-primary form-submit-btn">
                 Confirm Booking
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

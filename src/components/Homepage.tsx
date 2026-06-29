@@ -333,6 +333,7 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
   const [selectedService, setSelectedService] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const lastScrollY = useRef(0);
   const forceUpdateRef = useRef(false);
@@ -999,6 +1000,12 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
     });
   };
 
+  const handleBookServiceClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    contactSectionRef.current?.openModal();
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -1029,7 +1036,7 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
           <a href="#contact" className="nav-link-item" onClick={(e) => handleNavLinkClick(e, "contact")}>Contact</a>
         </nav>
         <div className="navbar-cta-right">
-          <button className="nav-btn-cta" onClick={(e) => handleNavLinkClick(e, "contact")}>Book Service</button>
+          <button className="nav-btn-cta" onClick={handleBookServiceClick}>Book Service</button>
         </div>
         <button
           className={`mobile-hamburger-btn ${isMobileMenuOpen ? "open" : ""}`}
@@ -1049,7 +1056,7 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
         <a href="#services" className="mobile-nav-link" onClick={(e) => handleNavLinkClick(e, "services")}>Services</a>
         <a href="#gallery" className="mobile-nav-link" onClick={(e) => handleNavLinkClick(e, "gallery")}>Gallery</a>
         <a href="#contact" className="mobile-nav-link" onClick={(e) => handleNavLinkClick(e, "contact")}>Contact</a>
-        <button className="mobile-nav-btn-cta" onClick={(e) => handleNavLinkClick(e, "contact")}>Book Service</button>
+        <button className="mobile-nav-btn-cta" onClick={handleBookServiceClick}>Book Service</button>
       </div>
 
       {/* Sticky Pin Container for Pinned Animations */}
@@ -1132,11 +1139,31 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
                 Welcome to Motovillage Car Workshop Pvt Ltd — where engineering expertise meets genuine care for your vehicle. Since 2018, we have served over 22,000+ satisfied customers across Gujarat.
               </p>
               <div style={{ display: "flex", gap: "15px", justifyContent: "flex-end" }}>
-                <button className="btn-primary" onClick={(e) => handleNavLinkClick(e, "contact")}>
+                <button className="btn-primary" onClick={handleBookServiceClick}>
                   Book a Service
                 </button>
-                <button className="btn-secondary" onClick={(e) => handleNavLinkClick(e, "services")}>
-                  Explore Services
+                <button
+                  className={`btn-secondary ${isDownloading ? "downloading" : ""}`}
+                  onClick={() => {
+                    if (isDownloading) return;
+                    setIsDownloading(true);
+                    setTimeout(() => {
+                      const link = document.createElement("a");
+                      link.href = "/Motovillage_Brochure.pdf";
+                      link.download = "Motovillage_Brochure.pdf";
+                      link.click();
+                      setIsDownloading(false);
+                    }, 2500);
+                  }}
+                >
+                  {isDownloading ? (
+                    <>
+                      <span className="btn-secondary-spinner"></span>
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    "Explore Services"
+                  )}
                 </button>
               </div>
 
@@ -1694,7 +1721,7 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
                   <div style={{ display: "flex", gap: "15px", marginTop: "auto", flexShrink: 0 }}>
                     <button
                       className="btn-primary"
-                      onClick={(e) => handleNavLinkClick(e, "contact")}
+                      onClick={handleBookServiceClick}
                       style={{ flex: 1, padding: "12px 20px", fontSize: "0.8rem", border: "none", cursor: "pointer", fontWeight: 700, borderRadius: "8px" }}
                     >
                       Book Service
@@ -1887,42 +1914,17 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
             <div
               className="modal-content-wrapper"
               onClick={(e) => e.stopPropagation()}
+              data-lenis-prevent
             >
               {/* Close Button */}
               <button
+                className="modal-close-btn"
                 onClick={() => setExpandedCard(null)}
-                style={{
-                  position: "absolute",
-                  top: "25px",
-                  right: "25px",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  color: "#FFFFFF",
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  fontSize: "1.2rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--color-orange)";
-                  e.currentTarget.style.color = "black";
-                  e.currentTarget.style.borderColor = "var(--color-orange)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.color = "#FFFFFF";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                }}
               >
                 ✕
               </button>
 
-              <div style={{ color: "var(--color-orange)", fontFamily: "var(--font-mono)", fontSize: "0.95rem", fontWeight: 800, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "10px" }}>
+              <div className="modal-top-tag">
                 {service.title}
               </div>
               <h2 className="modal-subtitle-text">
@@ -1932,20 +1934,20 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
               <div className="modal-grid-layout">
                 {/* Process Steps */}
                 <div>
-                  <h3 style={{ color: "var(--color-orange)", fontSize: "1.2rem", fontWeight: 800, letterSpacing: "1px", marginBottom: "20px", textTransform: "uppercase" }}>
+                  <h3 className="modal-section-title">
                     Service Process
                   </h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="modal-steps-container">
                     {service.process.map((step, idx) => (
                       <div key={idx} style={{ display: "flex", gap: "15px", alignItems: "flex-start" }}>
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.1rem", fontWeight: 800, color: "var(--color-orange)", opacity: 0.8, background: "rgba(255, 110, 0, 0.1)", padding: "4px 8px", borderRadius: "4px" }}>
+                        <div className="modal-step-number">
                           {String(idx + 1).padStart(2, "0")}
                         </div>
                         <div>
-                          <h4 style={{ color: "#FFFFFF", fontSize: "0.95rem", fontWeight: 700, marginBottom: "4px" }}>
+                          <h4 className="modal-step-title">
                             {step.name}
                           </h4>
-                          <p style={{ color: "#CCCCCC", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                          <p className="modal-step-desc">
                             {step.desc}
                           </p>
                         </div>
@@ -1956,14 +1958,14 @@ export default function Homepage({ logoPaths, isVisible, preloadedImages, isLoad
 
                 {/* Benefits */}
                 <div>
-                  <h3 style={{ color: "var(--color-orange)", fontSize: "1.2rem", fontWeight: 800, letterSpacing: "1px", marginBottom: "20px", textTransform: "uppercase" }}>
+                  <h3 className="modal-section-title">
                     Key Benefits
                   </h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                  <div className="modal-benefits-container">
                     {service.benefits.map((benefit, idx) => (
                       <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                         <span style={{ color: "var(--color-orange)", fontSize: "1.2rem", lineHeight: 1 }}>✓</span>
-                        <p style={{ color: "#E0E0E0", fontSize: "0.9rem", lineHeight: 1.5, margin: 0 }}>
+                        <p className="modal-benefit-text">
                           {benefit}
                         </p>
                       </div>
